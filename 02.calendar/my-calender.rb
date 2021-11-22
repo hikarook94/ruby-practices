@@ -24,9 +24,7 @@ puts week_labels.join(" ")
 start_date.wday.times { print("  ", " ") }
 start_date.step(last_date) do |date|
   day_string = date.day.to_s
-  if day_string.size == 1
-    day_string = " " + day_string
-  end
+  day_string = day_string.rjust(2)
 
   if date == default_date
     day_string = "\e[7m#{day_string}\e[0m"
