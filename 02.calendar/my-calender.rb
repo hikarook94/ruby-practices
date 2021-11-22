@@ -8,14 +8,9 @@ option_month = default_date.month
 
 options = ARGV.getopts("y:m:")
 
-# p options["y"]
-# p options["m"]
-
 #-y-mそれぞれ引数を取った場合(nilじゃなかった場合)
 option_year = options["y"].to_i unless options["y"] == nil
 option_month = options["m"].to_i unless options["m"] == nil
-
-# p(option_year, option_month)
 
 start_date = Date.new(option_year, option_month)
 last_date = Date.new(option_year, option_month, -1)
@@ -26,10 +21,8 @@ puts("      #{start_date.month}月 #{start_date.year}")
 puts week_labels.join(" ")
 
 # 初日の曜日を揃えるためにスペースを最初に表示しておく
-start_date.wday.times {
-  print("  ", " ")
-}
-start_date.step(last_date) {|date|
+start_date.wday.times { print("  ", " ") }
+start_date.step(last_date) do |date|
   day_string = date.day.to_s
   if day_string.size == 1
     day_string = " " + day_string
@@ -45,5 +38,5 @@ start_date.step(last_date) {|date|
     day_string += " "
   end
   print day_string
-}
+end
 puts "\n"
