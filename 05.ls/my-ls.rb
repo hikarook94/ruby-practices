@@ -10,12 +10,17 @@ def parse_option
   opt = OptionParser.new
   params = {}
   opt.on('-a') { |flag| params[:a] = flag }
+  opt.on('-r') { |flag| params[:r] = flag }
   opt.parse(ARGV)
-  a_option?(params) ? File::FNM_DOTMATCH : 0
+  params
 end
 
-def a_option?(params)
-  params.key?(:a)
+def a_option(options_hash)
+  options_hash.key?(:a) ? File::FNM_DOTMATCH : 0
+end
+
+def r_option(files_array, options_hash)
+  options_hash.key?(:r) ? files_array.reverse! : files_array
 end
 
 def get_filenames(option)
@@ -48,7 +53,9 @@ def generate(spaced_files_array)
   end
 end
 
-option = parse_option
+options_hash = parse_option
+option = a_option(options_hash)
 files_array = get_filenames(option)
+files_array = r_option(files_array, options_hash)
 spaced_files_array = add_spaces(files_array)
 generate(spaced_files_array)
