@@ -3,6 +3,7 @@
 
 require 'optparse'
 require 'etc'
+require 'date'
 
 COLUMN_NUM = 3
 COLUMN_SPACE = 3
@@ -33,28 +34,27 @@ def get_filenames(options_hash)
   options_hash.key?(:r) ? filename_array.reverse : filename_array
 end
 
-def get_file_object_array(filenames)
-  filenames.map { |filename| [File.new(filename), filename] }
-end
-
-def generate_with_l_option(files_array)
+def generate_with_l_option(filenames)
   display_array = []
-  files_array.each do |file|
-    file_object = file[0]
-    file_object_stat = file[0].stat
-    file_name = file[1]
-    file_array = []
+  total = 0
+  file_object_array = filenames.map { |filename| File.new(filename) }
+  file_object_array.each_with_index do |file_object, index|
+    file_object_stat = file_object.stat
+    total += file_object.lstat.blocks if File.fnmatch('*', file_object, File::FNM_DOTMATCH)
 
+    file_array = []
     file_array << decode_modes(file_object.lstat.mode).join
     file_array << file_object_stat.nlink.to_s.rjust(3)
     file_array << Etc.getpwuid(file_object_stat.uid).name
     file_array << Etc.getgrgid(file_object_stat.gid).name
     file_array << file_object.lstat.size.to_s.rjust(5)
     file_array << trim_mtime(file_object_stat.mtime)
-    file_array << file_name
-    file_array << trim_symlink(file_name) if File.symlink?(file_name)
+    file_array << filenames[index]
+    file_array << trim_symlink(filenames[index]) if File.symlink?(filenames[index])
+
     display_array << file_array
   end
+  display_array.unshift ["total #{total}"]
   show(display_array)
 end
 
@@ -88,7 +88,7 @@ def overwrite_x(last_bit, index)
   when '1'
     index < 2 ? 's' : 't'
   else
-    index < 2 ? 'S' : 'T'
+    index < 2 ? 's'.upcase : 't'.upcase
   end
 end
 
@@ -96,14 +96,15 @@ def trim_mtime(mtime)
   month = mtime.month.to_s.rjust(2)
   day = mtime.day.to_s.rjust(2)
   year = mtime.year.to_s.rjust(5)
+  six_month_before = Time.now.to_date.prev_month(6).to_time
 
-  third_place = mtime.year < Time.now.year ? year : mtime.strftime('%R')
+  third_place = mtime.strftime('%R')
+  third_place = year if mtime < six_month_before || Time.now < mtime
   "#{month} #{day} #{third_place}"
 end
 
 def trim_symlink(file_name)
-  path = File.readlink(file_name)
-  "-> #{path}"
+  "-> #{File.readlink(file_name)}"
 end
 
 def add_spaces(files_array)
@@ -116,12 +117,7 @@ end
 
 def generate(spaced_files_array)
   row_num = spaced_files_array.size.fdiv(COLUMN_NUM).ceil
-
-  # 二次元配列はmapメソッドを使っても作成できるがとりあえず残置
-  display_array = []
-  row_num.times do
-    display_array << []
-  end
+  display_array = Array.new(row_num).map { [] }
 
   spaced_files_array.each_with_index do |file, index|
     display_array[index % row_num] << file
@@ -138,8 +134,7 @@ end
 options_hash = parse_option
 files_array = get_filenames(options_hash)
 if options_hash.key?(:l)
-  file_object_array = get_file_object_array(files_array)
-  generate_with_l_option(file_object_array)
+  generate_with_l_option(files_array)
 else
   spaced_files_array = add_spaces(files_array)
   generate(spaced_files_array)
