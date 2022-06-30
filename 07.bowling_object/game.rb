@@ -11,7 +11,7 @@ class Game
   end
 
   def score
-    @frames.map.sum(&:total_score)
+    @frames.sum(&:total_score)
   end
 
   private
