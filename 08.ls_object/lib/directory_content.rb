@@ -22,7 +22,16 @@ class DirectoryContent
   end
 
   def show(max_stat_sizes)
-    format_long(@stat, max_stat_sizes)
+    [
+      @stat[:type],
+      @stat[:permission],
+      " #{@stat[:nlink].rjust(max_stat_sizes[:nlink])}",
+      " #{@stat[:user].ljust(max_stat_sizes[:user])}",
+      " #{@stat[:group].ljust(max_stat_sizes[:group])}",
+      " #{@stat[:size].rjust(max_stat_sizes[:size])}",
+      " #{@stat[:time]}",
+      " #{@stat[:name]}"
+    ].join
   end
 
   private
@@ -53,18 +62,5 @@ class DirectoryContent
 
   def format_mtime(file_stat_mtime)
     file_stat_mtime.strftime('%m %d %H:%M')
-  end
-
-  def format_long(stat, max_stat_sizes)
-    [
-      stat[:type],
-      stat[:permission],
-      " #{stat[:nlink].rjust(max_stat_sizes[:nlink])}",
-      " #{stat[:user].ljust(max_stat_sizes[:user])}",
-      " #{stat[:group].ljust(max_stat_sizes[:group])}",
-      " #{stat[:size].rjust(max_stat_sizes[:size])}",
-      " #{stat[:time]}",
-      " #{stat[:name]}"
-    ].join
   end
 end
