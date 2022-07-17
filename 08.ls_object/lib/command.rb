@@ -8,7 +8,7 @@ class Command
 
   def initialize(opts)
     @opts = opts
-    @filenames = filenames
+    @filenames = gen_filenames
     return unless long?
   end
 
@@ -23,10 +23,10 @@ class Command
   end
 
   def print_short_format
-    row_number = (filenames.size / COLUMN_NUMBER).ceil
-    max_length = filenames.map(&:size).max
+    row_number = (@filenames.size / COLUMN_NUMBER).ceil
+    max_length = @filenames.map(&:size).max
     lines = Array.new(row_number) { [] }
-    filenames.each_with_index do |filename, index|
+    @filenames.each_with_index do |filename, index|
       line_number = index % row_number
       lines[line_number].push(filename.ljust(max_length + SPACES_BTWN_ROWS))
     end
@@ -45,9 +45,9 @@ class Command
     end
   end
 
-  def filenames
-    _filenames = all? ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
-    reverse? ? _filenames.reverse : _filenames
+  def gen_filenames
+    filenames = all? ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+    reverse? ? filenames.reverse : filenames
   end
 
   def build_max_stat_sizes(stats)
