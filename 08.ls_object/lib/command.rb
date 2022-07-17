@@ -23,7 +23,7 @@ class Command
   end
 
   def print_short_format
-    row_number = (@filenames.size / COLUMN_NUMBER).ceil
+    row_number = @filenames.size.fdiv(COLUMN_NUMBER).ceil
     max_length = @filenames.map(&:size).max
     lines = Array.new(row_number) { [] }
     @filenames.each_with_index do |filename, index|
