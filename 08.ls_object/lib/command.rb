@@ -24,9 +24,7 @@ class Command
   private
 
   def generate_directory_contents(filenames)
-    filenames.each_with_object([]) do |filename, files|
-      files << DirectoryContent.new(filename)
-    end
+    filenames.map { |filename| DirectoryContent.new(filename) }
   end
 
   def print_short_format
