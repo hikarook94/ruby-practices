@@ -10,15 +10,10 @@ class Command
     @opts = opts
     @filenames = filenames
     return unless long?
-
-    @directory_contents = generate_directory_contents(@filenames)
-    contents_stats = @directory_contents.map(&:stat)
-    @max_stat_sizes = build_max_stat_sizes(contents_stats)
-    @total_block = build_total_block(contents_stats)
   end
 
   def exec
-    long? ? print_long_format(@max_stat_sizes) : print_short_format
+    long? ? print_long_format : print_short_format
   end
 
   private
@@ -28,7 +23,7 @@ class Command
   end
 
   def print_short_format
-    filenames = reverse? ? @filenames.reverse : @filenames
+    filenames = reverse? ? @filenames.reverse : @filenames # TODO: filenames初期化時にreverse処理
     row_number = (filenames.size / COLUMN_NUMBER).ceil
     max_length = filenames.map(&:size).max
     lines = Array.new(row_number) { [] }
@@ -39,9 +34,13 @@ class Command
     lines.each { |line| puts line.join }
   end
 
-  def print_long_format(max_stat_sizes)
-    directory_contents = reverse? ? @directory_contents.reverse : @directory_contents
-    puts "total #{@total_block}"
+  def print_long_format
+    directory_contents = generate_directory_contents(@filenames)
+    contents_stats = directory_contents.map(&:stat)
+    max_stat_sizes = build_max_stat_sizes(contents_stats)
+    total_block = build_total_block(contents_stats)
+    directory_contents = reverse? ? directory_contents.reverse : directory_contents # TODO: filenames初期化時にreverse処理
+    puts "total #{total_block}"
     directory_contents.each do |content|
       puts content.show(max_stat_sizes)
     end
