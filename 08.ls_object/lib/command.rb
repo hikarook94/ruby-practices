@@ -8,7 +8,7 @@ class Command
 
   def initialize(opts)
     @opts = opts
-    @filenames = gen_filenames
+    @filenames = filenames
     return unless long?
   end
 
@@ -41,13 +41,13 @@ class Command
 
     puts "total #{total_block}"
     directory_contents.each do |content|
-      puts content.show(max_stat_sizes)
+      puts content.long_format(max_stat_sizes)
     end
   end
 
-  def gen_filenames
-    filenames = all? ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
-    reverse? ? filenames.reverse : filenames
+  def filenames
+    filenames_array = all? ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+    reverse? ? filenames_array.reverse : filenames_array
   end
 
   def build_max_stat_sizes(stats)

@@ -21,7 +21,7 @@ class DirectoryContent
     @stat = build_stat(name)
   end
 
-  def show(max_stat_sizes)
+  def long_format(max_stat_sizes)
     [
       @stat[:type],
       @stat[:permission],
